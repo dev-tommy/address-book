@@ -1,5 +1,9 @@
 #include <iostream>
 #include <windows.h>
+#include <fstream>
+#include <string>
+#include <vector>
+#include <sstream>
 
 using namespace std;
 
@@ -8,20 +12,18 @@ struct Uzytkownik {
     string nazwa, haslo;
 };
 
-int rejestracja(Uzytkownik uzytkownicy[], int userCount);
-int logowanie(Uzytkownik uzytkownicy[], int userCount);
-void zmianaHasla(Uzytkownik uzytkownicy[],int iloscUzytkownikow,int idZalogowanegoUzytkownika);
+void rejestracja(vector<Uzytkownik> &uzytkownicy);
+int logowanie(vector<Uzytkownik> &uzytkownicy);
+void zmianaHasla(vector<Uzytkownik> &uzytkownicy,int idZalogowanegoUzytkownika);
 
 int main() {
-    Uzytkownik uzytkownicy[100];
+    vector<Uzytkownik> uzytkownicy;
     int idZalogowanegoUzytkownika = 0;
-    int iloscUzytkownikow = 0;
+    int iloscUzytkownikow = uzytkownicy.size();
     char wybor;
 
     while(true) {
         if (idZalogowanegoUzytkownika == 0) {
-
-
             system("cls");
             cout << "1. Rejestracja" << endl;
             cout << "2. Logowanie" << endl;
@@ -29,9 +31,10 @@ int main() {
             cin >>  wybor;
 
             if (wybor=='1') {
-                iloscUzytkownikow = rejestracja(uzytkownicy, iloscUzytkownikow);
+                rejestracja(uzytkownicy);
+                iloscUzytkownikow = uzytkownicy.size();
             } else if (wybor=='2') {
-                idZalogowanegoUzytkownika = logowanie(uzytkownicy, iloscUzytkownikow);
+                idZalogowanegoUzytkownika = logowanie(uzytkownicy);
             } else if (wybor=='9') {
                 exit(0);
             }
@@ -44,10 +47,12 @@ int main() {
             cin >>  wybor;
 
             if (wybor=='1') {
-                zmianaHasla(uzytkownicy, iloscUzytkownikow, idZalogowanegoUzytkownika);
+                zmianaHasla(uzytkownicy, idZalogowanegoUzytkownika);
             } else if (wybor=='2') {
                 idZalogowanegoUzytkownika = 0;
             } else if (wybor=='9') {
+                cout << "Wylogowano" << endl;
+                Sleep(1000);
                 exit(0);
             }
         }
@@ -58,8 +63,11 @@ int main() {
 }
 
 
-int rejestracja(Uzytkownik uzytkownicy[], int userCount) {
+void rejestracja(vector<Uzytkownik> &uzytkownicy) {
     string nazwa, haslo;
+    int userCount = uzytkownicy.size();
+    Uzytkownik userToRegister;
+
     cout << "Podaj nazwe uzytkownika: ";
     cin >> nazwa;
 
@@ -75,16 +83,21 @@ int rejestracja(Uzytkownik uzytkownicy[], int userCount) {
     }
     cout << "Podaj haslo: ";
     cin >> haslo;
-    uzytkownicy[userCount].nazwa = nazwa;
-    uzytkownicy[userCount].haslo = haslo;
-    uzytkownicy[userCount].id = userCount + 1;
+
+    userToRegister.nazwa = nazwa;
+    userToRegister.haslo = haslo;
+    userToRegister.id = userCount + 1;
+
+    uzytkownicy.push_back(userToRegister);
+
     cout << "Konto zalozone" << endl;
     Sleep(1000);
-    return userCount+1;
 }
 
-int logowanie(Uzytkownik uzytkownicy[], int userCount) {
+int logowanie(vector<Uzytkownik> &uzytkownicy) {
     string nazwa, haslo;
+    int userCount = uzytkownicy.size();
+
     cout << "Podaj nazwe: ";
     cin >> nazwa;
     int i = 0;
@@ -98,8 +111,6 @@ int logowanie(Uzytkownik uzytkownicy[], int userCount) {
                     Sleep(1000);
                     return uzytkownicy[i].id;
                 }
-
-
             }
             cout << "Podales 3 razy bledne haslo. Poczekaj 3 sekundy" << endl;
             Sleep(3000);
@@ -113,11 +124,13 @@ int logowanie(Uzytkownik uzytkownicy[], int userCount) {
     return 0;
 }
 
-void zmianaHasla(Uzytkownik uzytkownicy[],int iloscUzytkownikow,int idZalogowanegoUzytkownika) {
+void zmianaHasla(vector<Uzytkownik> &uzytkownicy,int idZalogowanegoUzytkownika) {
     string haslo;
+    int userCount = uzytkownicy.size();
+
     cout << "Podaj nowe haslo: ";  // mozna zapytac tez o stare
     cin >> haslo;
-    for (int i=0; i<iloscUzytkownikow; i++) {
+    for (int i=0; i<userCount; i++) {
         if (uzytkownicy[i].id == idZalogowanegoUzytkownika) {
             uzytkownicy[i].haslo = haslo;
             cout << "Haslo zostalo zmienione" << endl;
