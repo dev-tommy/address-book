@@ -29,7 +29,7 @@ void wyszukajAdresataPoNazwisku(vector<Kontakt> &adresaci);
 void wyszukajAdresataPoImieniu(vector<Kontakt> &adresaci);
 void usunAdresata(char* nazwaPlikuAdresaci,vector<Kontakt> &adresaci);
 void aktualizujPlikZAdresatami(char* nazwaPlikuAdresaci, Kontakt edytowanyAdresat);
-void usunAdresataOPozycji(vector<Kontakt> &adresaci, unsigned int pozycjaAdresataDoUsuniecia);
+void usunAdresataOPozycji(char* nazwaPlikuAdresaci, int idAdresataDoUsuniecia);
 void edytujDaneAdresata(char* nazwaPlikuAdresaci, vector<Kontakt> &adresaci, unsigned int pozycjaAdresataWPamieci, string pole);
 void wyswietlAdresata(Kontakt adresatDoWyswietlenia);
 void wyswietlTytul();
@@ -298,8 +298,38 @@ void aktualizujPlikZAdresatami(char* nazwaPlikuAdresaci, Kontakt edytowanyAdresa
     }
 
 }
-void usunAdresataOPozycji(vector<Kontakt> &adresaci, unsigned int pozycjaAdresataDoUsuniecia) {
-    adresaci.erase(adresaci.begin()+pozycjaAdresataDoUsuniecia);
+void usunAdresataOPozycji(char* nazwaPlikuAdresaci, int idAdresataDoUsuniecia) {
+    fstream plik, plik_tymczasowy;
+    string liniaZDanymiAdresata;
+    Kontakt daneAdresata;
+    char* nazwaPlikuTymczasowego = "Adresaci_tymczasowy.txt";
+
+    plik.open(nazwaPlikuAdresaci,ios::in);
+    if (plik.good()) {
+        plik_tymczasowy.open(nazwaPlikuTymczasowego,ios::out);
+        if (plik_tymczasowy.good()) {
+            cin.sync();
+            while(!plik.eof()) {
+                getline(plik,liniaZDanymiAdresata);
+                if (liniaZDanymiAdresata.size() > 1) {
+                        daneAdresata = konwertujTekstNaKontakt(liniaZDanymiAdresata);
+
+                        if (daneAdresata.id == idAdresataDoUsuniecia) {
+                            continue;
+                        }
+                    plik_tymczasowy << liniaZDanymiAdresata << endl;
+                }
+            }
+            plik_tymczasowy.close();
+            plik.close();
+            remove(nazwaPlikuAdresaci);
+            rename(nazwaPlikuTymczasowego, nazwaPlikuAdresaci);
+
+        }
+    } else {
+        cout << "Nie udało się zauktualizować pliku" << endl;
+        system("pause");
+    }
 }
 void usunAdresata(char* nazwaPlikuAdresaci,vector<Kontakt> &adresaci) {
     unsigned int idAdresataDoUsuniecia;
@@ -318,7 +348,7 @@ void usunAdresata(char* nazwaPlikuAdresaci,vector<Kontakt> &adresaci) {
             cout << "Czy napewno chcesz usunąć adresata (t/n) ? ";
             cin >> wybor;
             if (wybor == 't') {
-                usunAdresataOPozycji(adresaci, pozycjaAdresataDoUsuniecia);
+                usunAdresataOPozycji(nazwaPlikuAdresaci, idAdresataDoUsuniecia);
                 //aktualizujPlikZAdresatami(nazwaPlikuAdresaci, adresaci);
                 cout << "Adresat usunięty !!!" << endl;
                 Sleep(1000);
@@ -561,6 +591,7 @@ void wyswietlMenu(char* nazwaPlikuAdresaci, char* nazwaPlikuUzytkownicy, vector<
                 break;
             case 5:
                 usunAdresata(nazwaPlikuAdresaci, adresaci);
+                wczytajAdresatowZPliku(nazwaPlikuAdresaci, adresaci, idUzytkownika);
                 break;
             case 6:
                 menuEdycjiAdresataAktywne = true;
