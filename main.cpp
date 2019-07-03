@@ -43,6 +43,7 @@ int konwertujTekstNaLiczbe(string liczba);
 int menuGlowne();
 int menuLogowania();
 int menuEdycjiAdresata(vector<Kontakt> &adresaci, int pozycjaAdresataWPamieci);
+int podajOstatnieIdAdresata(char* nazwaPlikuAdresaci);
 
 string konwertujLiczbeNaTekst(int liczba);
 string konwertujKontaktNaTekst(Kontakt kontaktDoKonwersji);
@@ -98,8 +99,9 @@ void dodajAdresata(char* nazwaPlikuAdresaci, vector<Kontakt> &adresaci, int idUz
     unsigned int ostatnieID;
     Kontakt dodawanyKontakt;
 
+
     if (liczbaKontaktow>0) {
-        ostatnieID = adresaci[liczbaKontaktow-1].id;
+        ostatnieID = podajOstatnieIdAdresata(nazwaPlikuAdresaci);
     } else {
         ostatnieID = 0;
     }
@@ -727,4 +729,20 @@ void zmianaHaslaUzytkownika(char* nazwaPlikuUzytkownicy, vector<Uzytkownik> &uzy
         }
     }
 }
+int podajOstatnieIdAdresata(char* nazwaPlikuAdresaci) {
+    string liniaZDanymiAdresata;
+    fstream plik;
+    Kontakt daneAdresata;
+    plik.open(nazwaPlikuAdresaci,ios::in);
+    if (plik.good()) {
+        cin.sync();
+        while(!plik.eof()) {
+            getline(plik,liniaZDanymiAdresata);
+            if (liniaZDanymiAdresata.length() > 0)
+                daneAdresata = konwertujTekstNaKontakt(liniaZDanymiAdresata);
+        }
+            return daneAdresata.id;
+    }
 
+    plik.close();
+}
