@@ -94,16 +94,16 @@ void dodajUzytkownikaDoPliku(char* nazwaPlikuUzytkownicy, Uzytkownik dodawanyUzy
 void dodajAdresata(char* nazwaPlikuAdresaci, vector<Kontakt> &adresaci, int idUzytkownika) {
     bool pobranoDane = false;
     char odpowiedz;
-    unsigned int liczbaKontaktow = adresaci.size();
-    unsigned int ostatnieID;
+    int liczbaKontaktow = adresaci.size();
+    int ostatnieID;
     Kontakt dodawanyKontakt;
 
 
-    if (liczbaKontaktow>0) {
+    //if (liczbaKontaktow>0) {
         ostatnieID = podajOstatnieIdAdresata(nazwaPlikuAdresaci);
-    } else {
-        ostatnieID = 0;
-    }
+    //} else {
+    //    ostatnieID = 0;
+    //}
 
     dodawanyKontakt.id = ostatnieID+1;
     dodawanyKontakt.idUzytkownika = idUzytkownika;
