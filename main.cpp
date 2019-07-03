@@ -95,15 +95,10 @@ void dodajAdresata(char* nazwaPlikuAdresaci, vector<Kontakt> &adresaci, int idUz
     bool pobranoDane = false;
     char odpowiedz;
     int liczbaKontaktow = adresaci.size();
-    int ostatnieID;
+    int ostatnieID=0;
     Kontakt dodawanyKontakt;
 
-
-    //if (liczbaKontaktow>0) {
-        ostatnieID = podajOstatnieIdAdresata(nazwaPlikuAdresaci);
-    //} else {
-    //    ostatnieID = 0;
-    //}
+    ostatnieID = podajOstatnieIdAdresata(nazwaPlikuAdresaci);
 
     dodawanyKontakt.id = ostatnieID+1;
     dodawanyKontakt.idUzytkownika = idUzytkownika;
@@ -277,12 +272,12 @@ void aktualizujPlikZAdresatami(char* nazwaPlikuAdresaci, Kontakt edytowanyAdresa
             while(!plik.eof()) {
                 getline(plik,liniaZDanymiAdresata);
                 if (liniaZDanymiAdresata.size() > 1) {
-                        daneAdresata = konwertujTekstNaKontakt(liniaZDanymiAdresata);
+                    daneAdresata = konwertujTekstNaKontakt(liniaZDanymiAdresata);
 
-                        if (daneAdresata.id == edytowanyAdresat.id) {
-                            plik_tymczasowy << konwertujKontaktNaTekst(edytowanyAdresat) << endl;
-                            continue;
-                        }
+                    if (daneAdresata.id == edytowanyAdresat.id) {
+                        plik_tymczasowy << konwertujKontaktNaTekst(edytowanyAdresat) << endl;
+                        continue;
+                    }
                     plik_tymczasowy << liniaZDanymiAdresata << endl;
                 }
             }
@@ -312,11 +307,11 @@ void usunAdresataOPozycji(char* nazwaPlikuAdresaci, int idAdresataDoUsuniecia) {
             while(!plik.eof()) {
                 getline(plik,liniaZDanymiAdresata);
                 if (liniaZDanymiAdresata.size() > 1) {
-                        daneAdresata = konwertujTekstNaKontakt(liniaZDanymiAdresata);
+                    daneAdresata = konwertujTekstNaKontakt(liniaZDanymiAdresata);
 
-                        if (daneAdresata.id == idAdresataDoUsuniecia) {
-                            continue;
-                        }
+                    if (daneAdresata.id == idAdresataDoUsuniecia) {
+                        continue;
+                    }
                     plik_tymczasowy << liniaZDanymiAdresata << endl;
                 }
             }
@@ -784,19 +779,20 @@ void zmianaHaslaUzytkownika(char* nazwaPlikuUzytkownicy, vector<Uzytkownik> &uzy
     }
 }
 int podajOstatnieIdAdresata(char* nazwaPlikuAdresaci) {
-    string liniaZDanymiAdresata;
     fstream plik;
+    string liniaZDanymiAdresata;
     Kontakt daneAdresata;
+    daneAdresata.id = 0;
     plik.open(nazwaPlikuAdresaci,ios::in);
     if (plik.good()) {
         cin.sync();
         while(!plik.eof()) {
-            getline(plik,liniaZDanymiAdresata);
-            if (liniaZDanymiAdresata.length() > 0)
+            getline(plik, liniaZDanymiAdresata);
+            if (liniaZDanymiAdresata.size() >1 ) {
                 daneAdresata = konwertujTekstNaKontakt(liniaZDanymiAdresata);
+            }
         }
-        return daneAdresata.id;
+        plik.close();
     }
-
-    plik.close();
+    return daneAdresata.id;
 }
