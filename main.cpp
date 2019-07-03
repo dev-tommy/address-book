@@ -14,26 +14,30 @@ struct Uzytkownik {
 struct Kontakt {
     string imie="", nazwisko="", adres="", email="", nrTelefonu="";
     unsigned int id = 0;
+    unsigned int idUzytkownika = 0;
 };
 
-void rejestracjaUzytkownika(vector<Uzytkownik> &uzytkownicy);
-void zmianaHaslaUzytkownika(vector<Uzytkownik> &uzytkownicy,int idZalogowanegoUzytkownika);
-void wczytajAdresatowZPliku(char* nazwaPliku, vector<Kontakt> &adresaci);
-void dodajAdresata(char* nazwaPliku, vector<Kontakt> &adresaci);
-void dodajAdresataDoPliku(char* nazwaPliku,Kontakt dodawanyKontakt);
+void rejestracjaUzytkownika(char* nazwaPlikuUzytkownicy);
+void zmianaHaslaUzytkownika(char* nazwaPlikuUzytkownicy, vector<Uzytkownik> &uzytkownicy,int idUzytkownika);
+void wczytajAdresatowZPliku(char* nazwaPlikuAdresaci, vector<Kontakt> &adresaci, int idUzytkownika);
+void dodajAdresata(char* nazwaPlikuAdresaci, vector<Kontakt> &adresaci, int idUzytkownika);
+void dodajUzytkownika(char* nazwaPlikuUzytkownicy, vector<Uzytkownik> &uzytkownicy);
+void dodajAdresataDoPliku(char* nazwaPlikuAdresaci,Kontakt dodawanyKontakt);
+void dodajUzytkownikaDoPliku(char* nazwaPlikuUzytkownicy, Uzytkownik dodawanyUzytkownik);
 void wyswietlWszystkichAdresatow(vector<Kontakt> &adresaci);
 void wyszukajAdresataPoNazwisku(vector<Kontakt> &adresaci);
 void wyszukajAdresataPoImieniu(vector<Kontakt> &adresaci);
-void usunAdresata(char* nazwaPliku,vector<Kontakt> &adresaci);
-void aktualizujPlikZAdresatami(char* nazwaPliku, vector<Kontakt> &adresaci);
+void usunAdresata(char* nazwaPlikuAdresaci,vector<Kontakt> &adresaci);
+void aktualizujPlikZAdresatami(char* nazwaPlikuAdresaci, vector<Kontakt> &adresaci);
 void usunAdresataOPozycji(vector<Kontakt> &adresaci, unsigned int pozycjaAdresataDoUsuniecia);
-void edytujDaneAdresata(char* nazwaPliku, vector<Kontakt> &adresaci, unsigned int pozycjaAdresataWPamieci, string pole);
+void edytujDaneAdresata(char* nazwaPlikuAdresaci, vector<Kontakt> &adresaci, unsigned int pozycjaAdresataWPamieci, string pole);
 void wyswietlAdresata(Kontakt adresatDoWyswietlenia);
 void wyswietlTytul();
 void wyczyscEkran();
-void wyswietlMenu(char* nazwaPliku, vector<Kontakt> &adresaci, vector<Uzytkownik> &uzytkownicy);
+void wyswietlMenu(char* nazwaPlikuAdresaci, char* nazwaPlikuUzytkownicy, vector<Kontakt> &adresaci, vector<Uzytkownik> &uzytkownicy);
 
-int logowanieUzytkownika(vector<Uzytkownik> &uzytkownicy);
+int wczytajUzytkownikowZPliku(char* nazwaPlikuUzytkownicy, vector<Uzytkownik> &uzytkownicy);
+int logowanieUzytkownika(char* nazwaPlikuUzytkownicy);
 int wyszukajAdresataPoID(vector<Kontakt> &adresaci, unsigned int szukaneId);
 int konwertujTekstNaLiczbe(string liczba);
 int menuGlowne();
@@ -42,23 +46,26 @@ int menuEdycjiAdresata(vector<Kontakt> &adresaci, int pozycjaAdresataWPamieci);
 
 string konwertujLiczbeNaTekst(int liczba);
 string konwertujKontaktNaTekst(Kontakt kontaktDoKonwersji);
+string konwertujUzytkownikaNaTekst(Uzytkownik uzytkownikDoKonwersji);
 
 Kontakt konwertujTekstNaKontakt(string liniaZDanymiAdresata);
+Uzytkownik konwertujTekstNaUzytkownik(string liniaZDanymiUzytkownika);
 
 int main() {
-    char* nazwaPliku = "ksiazka_adresowa_nowy_format.txt";
+    char* nazwaPlikuAdresaci = "Adresaci.txt";
+    char* nazwaPlikuUzytkownicy = "Uzytkownicy.txt";
     vector<Uzytkownik> uzytkownicy;
     vector<Kontakt> adresaci;
     wyswietlTytul();
-    //wczytajAdresatowZPliku(nazwaPliku, adresaci);
-    wyswietlMenu(nazwaPliku, adresaci, uzytkownicy);
+    //wczytajAdresatowZPliku(nazwaPlikuAdresaci, adresaci);
+    wyswietlMenu(nazwaPlikuAdresaci, nazwaPlikuUzytkownicy, adresaci, uzytkownicy);
 
     return 0;
 }
 
-void dodajAdresataDoPliku(char* nazwaPliku,Kontakt dodawanyKontakt) {
+void dodajAdresataDoPliku(char* nazwaPlikuAdresaci,Kontakt dodawanyKontakt) {
     fstream plik;
-    plik.open(nazwaPliku,ios::out | ios::app);
+    plik.open(nazwaPlikuAdresaci,ios::out | ios::app);
     if (plik.good()) {
         plik << konwertujKontaktNaTekst(dodawanyKontakt) << endl;
 
@@ -70,7 +77,21 @@ void dodajAdresataDoPliku(char* nazwaPliku,Kontakt dodawanyKontakt) {
         system("pause");
     }
 }
-void dodajAdresata(char* nazwaPliku, vector<Kontakt> &adresaci) {
+void dodajUzytkownikaDoPliku(char* nazwaPlikuUzytkownicy, Uzytkownik dodawanyUzytkownik) {
+    fstream plik;
+    plik.open(nazwaPlikuUzytkownicy,ios::out | ios::app);
+    if (plik.good()) {
+        plik << konwertujUzytkownikaNaTekst(dodawanyUzytkownik) << endl;
+
+        cout << "Dodano uzytkownika o id: " << dodawanyUzytkownik.id << endl;
+        plik.close();
+        system("pause");
+    } else {
+        cout << "Nie udalo sie dodac uzytkownika o id: " << dodawanyUzytkownik.id << endl;
+        system("pause");
+    }
+}
+void dodajAdresata(char* nazwaPlikuAdresaci, vector<Kontakt> &adresaci, int idUzytkownika) {
     bool pobranoDane = false;
     char odpowiedz;
     unsigned int liczbaKontaktow = adresaci.size();
@@ -84,6 +105,7 @@ void dodajAdresata(char* nazwaPliku, vector<Kontakt> &adresaci) {
     }
 
     dodawanyKontakt.id = ostatnieID+1;
+    dodawanyKontakt.idUzytkownika = idUzytkownika;
 
     while(!pobranoDane) {
         odpowiedz=0;
@@ -117,7 +139,44 @@ void dodajAdresata(char* nazwaPliku, vector<Kontakt> &adresaci) {
     }
 
     adresaci.push_back(dodawanyKontakt);
-    dodajAdresataDoPliku(nazwaPliku, dodawanyKontakt);
+    dodajAdresataDoPliku(nazwaPlikuAdresaci, dodawanyKontakt);
+}
+void dodajUzytkownika(char* nazwaPlikuUzytkownicy, vector<Uzytkownik> &uzytkownicy) {
+    string nazwa, haslo;
+    unsigned int liczbaUzytkownikow = uzytkownicy.size();
+    unsigned int ostatnieID;
+    Uzytkownik dodawanyUzytkownik;
+
+    if (liczbaUzytkownikow>0) {
+        ostatnieID = uzytkownicy[liczbaUzytkownikow-1].id;
+    } else {
+        ostatnieID = 0;
+    }
+
+    dodawanyUzytkownik.id = ostatnieID+1;
+    wyswietlTytul();
+    cout << "Rejestracja:" << endl;
+    cout << "Podaj nazwe uzytkownika: ";
+    cin >> nazwa;
+
+    int i=0;
+    while (i<liczbaUzytkownikow) {
+        if (uzytkownicy[i].nazwa == nazwa) {
+            cout << "Taki uzytkownik istnieje. Wpisz inna nazwe uzytkownika: ";
+            cin >> nazwa;
+            i = 0;
+        } else {
+            i++;
+        }
+    }
+    cout << "Podaj haslo: ";
+    cin >> haslo;
+
+    dodawanyUzytkownik.nazwa = nazwa;
+    dodawanyUzytkownik.haslo = haslo;
+
+    uzytkownicy.push_back(dodawanyUzytkownik);
+    dodajUzytkownikaDoPliku(nazwaPlikuUzytkownicy, dodawanyUzytkownik);
 }
 void wyswietlWszystkichAdresatow(vector<Kontakt> &adresaci) {
     bool brakKontaktow = true;
@@ -203,9 +262,9 @@ void wyszukajAdresataPoImieniu(vector<Kontakt> &adresaci) {
     }
     system("pause");
 }
-void aktualizujPlikZAdresatami(char* nazwaPliku, vector<Kontakt> &adresaci) {
+void aktualizujPlikZAdresatami(char* nazwaPlikuAdresaci, vector<Kontakt> &adresaci) {
     fstream plik;
-    plik.open(nazwaPliku,ios::out);
+    plik.open(nazwaPlikuAdresaci,ios::out);
     if (plik.good()) {
         for (int i=0; i<adresaci.size(); i++) {
             plik << konwertujKontaktNaTekst(adresaci[i]) << endl;
@@ -220,7 +279,7 @@ void aktualizujPlikZAdresatami(char* nazwaPliku, vector<Kontakt> &adresaci) {
 void usunAdresataOPozycji(vector<Kontakt> &adresaci, unsigned int pozycjaAdresataDoUsuniecia) {
     adresaci.erase(adresaci.begin()+pozycjaAdresataDoUsuniecia);
 }
-void usunAdresata(char* nazwaPliku,vector<Kontakt> &adresaci) {
+void usunAdresata(char* nazwaPlikuAdresaci,vector<Kontakt> &adresaci) {
     unsigned int idAdresataDoUsuniecia;
     int pozycjaAdresataDoUsuniecia;
     char wybor;
@@ -238,7 +297,7 @@ void usunAdresata(char* nazwaPliku,vector<Kontakt> &adresaci) {
             cin >> wybor;
             if (wybor == 't') {
                 usunAdresataOPozycji(adresaci, pozycjaAdresataDoUsuniecia);
-                aktualizujPlikZAdresatami(nazwaPliku, adresaci);
+                aktualizujPlikZAdresatami(nazwaPlikuAdresaci, adresaci);
                 cout << "Adresat usunięty !!!" << endl;
                 Sleep(1000);
             }
@@ -264,17 +323,31 @@ string konwertujKontaktNaTekst(Kontakt kontaktDoKonwersji) {
     polaDanychAdresowych.push_back(kontaktDoKonwersji.adres);
 
     kontaktWFormieTekstu = konwertujLiczbeNaTekst(kontaktDoKonwersji.id) + "|";
+    kontaktWFormieTekstu += konwertujLiczbeNaTekst(kontaktDoKonwersji.idUzytkownika) + "|";
     for(int i = 0; i < polaDanychAdresowych.size(); i++) {
         kontaktWFormieTekstu+=polaDanychAdresowych[i]+"|";
     }
     return kontaktWFormieTekstu;
+}
+string konwertujUzytkownikaNaTekst(Uzytkownik uzytkownikDoKonwersji) {
+    string uzytkownikWFormieTekstu;
+    vector<string> polaDanychUzytkownika;
+
+    polaDanychUzytkownika.push_back(uzytkownikDoKonwersji.nazwa);
+    polaDanychUzytkownika.push_back(uzytkownikDoKonwersji.haslo);
+
+    uzytkownikWFormieTekstu = konwertujLiczbeNaTekst(uzytkownikDoKonwersji.id) + "|";
+    for(int i = 0; i < polaDanychUzytkownika.size(); i++) {
+        uzytkownikWFormieTekstu+=polaDanychUzytkownika[i]+"|";
+    }
+    return uzytkownikWFormieTekstu;
 }
 Kontakt konwertujTekstNaKontakt(string liniaZDanymiAdresata) {
     Kontakt kontaktTymczasowy;
     int numerPola = 0;
     char znak;
     kontaktTymczasowy.id=0;
-    // Id | imie | nazwisko | telefon | email | adres
+    // IdAdresata | IdUzytkownika | imie | nazwisko | telefon | email | adres
     while(liniaZDanymiAdresata.length()) {
         znak = liniaZDanymiAdresata[0];
         if (znak == '|') {
@@ -290,18 +363,24 @@ Kontakt konwertujTekstNaKontakt(string liniaZDanymiAdresata) {
             }
             break;
         case 1:
-            kontaktTymczasowy.imie+=znak;
+            if ((znak >= '0') && (znak <='9')) {
+                kontaktTymczasowy.idUzytkownika *= 10;
+                kontaktTymczasowy.idUzytkownika += (znak - '0');
+            }
             break;
         case 2:
-            kontaktTymczasowy.nazwisko+=znak;
+            kontaktTymczasowy.imie+=znak;
             break;
         case 3:
-            kontaktTymczasowy.nrTelefonu+=znak;
+            kontaktTymczasowy.nazwisko+=znak;
             break;
         case 4:
-            kontaktTymczasowy.email+=znak;
+            kontaktTymczasowy.nrTelefonu+=znak;
             break;
         case 5:
+            kontaktTymczasowy.email+=znak;
+            break;
+        case 6:
             kontaktTymczasowy.adres+=znak;
             break;
         }
@@ -310,25 +389,77 @@ Kontakt konwertujTekstNaKontakt(string liniaZDanymiAdresata) {
 
     return kontaktTymczasowy;
 }
-void wczytajAdresatowZPliku(char* nazwaPliku, vector<Kontakt> &adresaci) {
+Uzytkownik konwertujTekstNaUzytkownik(string liniaZDanymiUzytkownika) {
+    Uzytkownik uzytkownikTymczasowy;
+    int numerPola = 0;
+    char znak;
+    uzytkownikTymczasowy.id=0;
+    // IdUzytkownika | nazwa | haslo
+    while(liniaZDanymiUzytkownika.length()) {
+        znak = liniaZDanymiUzytkownika[0];
+        if (znak == '|') {
+            numerPola++;
+            liniaZDanymiUzytkownika.erase(0,1);
+            continue;
+        }
+        switch(numerPola) {
+        case 0:
+            if ((znak >= '0') && (znak <='9')) {
+                uzytkownikTymczasowy.id *= 10;
+                uzytkownikTymczasowy.id += (znak - '0');
+            }
+            break;
+        case 1:
+            uzytkownikTymczasowy.nazwa+=znak;
+            break;
+        case 2:
+            uzytkownikTymczasowy.haslo+=znak;
+            break;
+        }
+        liniaZDanymiUzytkownika.erase(0,1);
+    }
+
+    return uzytkownikTymczasowy;
+}
+void wczytajAdresatowZPliku(char* nazwaPlikuAdresaci, vector<Kontakt> &adresaci, int idUzytkownika) {
     string liniaZDanymiAdresata;
     fstream plik;
-
+    Kontakt daneAdresata;
     adresaci.clear();
-    plik.open(nazwaPliku,ios::in);
+    plik.open(nazwaPlikuAdresaci,ios::in);
     if (plik.good()) {
         cin.sync();
         while(!plik.eof()) {
             getline(plik,liniaZDanymiAdresata);
             if (liniaZDanymiAdresata.length() > 0)
-                adresaci.push_back(konwertujTekstNaKontakt(liniaZDanymiAdresata));
+                daneAdresata = konwertujTekstNaKontakt(liniaZDanymiAdresata);
+                if (daneAdresata.idUzytkownika == idUzytkownika)
+                    adresaci.push_back(daneAdresata);
+        }
+    }
+
+    plik.close();
+}
+int wczytajUzytkownikowZPliku(char* nazwaPlikuUzytkownicy, vector<Uzytkownik> &uzytkownicy) {
+    string liniaZDanymiUzytkownika;
+    fstream plik;
+
+    uzytkownicy.clear();
+    plik.open(nazwaPlikuUzytkownicy,ios::in);
+    if (plik.good()) {
+        cin.sync();
+        while(!plik.eof()) {
+            getline(plik,liniaZDanymiUzytkownika);
+            if (liniaZDanymiUzytkownika.length() > 0)
+                uzytkownicy.push_back(konwertujTekstNaUzytkownik(liniaZDanymiUzytkownika));
         }
 
     }
 
     plik.close();
+
 }
-void edytujDaneAdresata(char* nazwaPliku, vector<Kontakt> &adresaci, unsigned int pozycjaAdresataWPamieci, string pole) {
+void edytujDaneAdresata(char* nazwaPlikuAdresaci, vector<Kontakt> &adresaci, unsigned int pozycjaAdresataWPamieci, string pole) {
     wyswietlTytul();
     cout << "Podaj ID:  " << adresaci[pozycjaAdresataWPamieci].id << endl;
     cout << endl;
@@ -350,30 +481,30 @@ void edytujDaneAdresata(char* nazwaPliku, vector<Kontakt> &adresaci, unsigned in
         cout << "Podaj nowy adres: ";
         cin >> adresaci[pozycjaAdresataWPamieci].adres;
     }
-    aktualizujPlikZAdresatami(nazwaPliku, adresaci);
+    aktualizujPlikZAdresatami(nazwaPlikuAdresaci, adresaci);
     cout << "Dane zmienione! " << endl;
     Sleep(1000);
 }
-void wyswietlMenu(char* nazwaPliku, vector<Kontakt> &adresaci, vector<Uzytkownik> &uzytkownicy) {
+void wyswietlMenu(char* nazwaPlikuAdresaci, char* nazwaPlikuUzytkownicy, vector<Kontakt> &adresaci, vector<Uzytkownik> &uzytkownicy) {
     bool menuEdycjiAdresataAktywne = false;
     bool zakonczDzialanie = false;
     bool menuLogowaniaAktywne = true;
     bool menuGlowneAktywne = false;
     int idAdresata, pozycjaAdresataWPamieci;
-    int idZalogowanegoUzytkownika = 0;
+    int idUzytkownika = 0;
     int iloscUzytkownikow = uzytkownicy.size();
     char wybor;
 
     while(!zakonczDzialanie) {
         while(menuLogowaniaAktywne) {
-            if (idZalogowanegoUzytkownika == 0) {
+            if (idUzytkownika == 0) {
                 switch(menuLogowania()) {
                 case 1:
-                    idZalogowanegoUzytkownika = logowanieUzytkownika(uzytkownicy);
+                    idUzytkownika = logowanieUzytkownika(nazwaPlikuUzytkownicy);
+                    wczytajAdresatowZPliku(nazwaPlikuAdresaci, adresaci, idUzytkownika);
                     break;
                 case 2:
-                    rejestracjaUzytkownika(uzytkownicy);
-                    iloscUzytkownikow = uzytkownicy.size();
+                    rejestracjaUzytkownika(nazwaPlikuUzytkownicy);
                     break;
                 case 9:
                     menuLogowaniaAktywne = false;
@@ -393,7 +524,7 @@ void wyswietlMenu(char* nazwaPliku, vector<Kontakt> &adresaci, vector<Uzytkownik
         while(menuGlowneAktywne) {
             switch(menuGlowne()) {
             case 1:
-                dodajAdresata(nazwaPliku, adresaci);
+                dodajAdresata(nazwaPlikuAdresaci, adresaci, idUzytkownika);
                 break;
             case 2:
                 wyszukajAdresataPoImieniu(adresaci);
@@ -405,7 +536,7 @@ void wyswietlMenu(char* nazwaPliku, vector<Kontakt> &adresaci, vector<Uzytkownik
                 wyswietlWszystkichAdresatow(adresaci);
                 break;
             case 5:
-                usunAdresata(nazwaPliku, adresaci);
+                usunAdresata(nazwaPlikuAdresaci, adresaci);
                 break;
             case 6:
                 menuEdycjiAdresataAktywne = true;
@@ -416,19 +547,19 @@ void wyswietlMenu(char* nazwaPliku, vector<Kontakt> &adresaci, vector<Uzytkownik
                     pozycjaAdresataWPamieci = wyszukajAdresataPoID(adresaci, idAdresata);
                     switch(menuEdycjiAdresata(adresaci, pozycjaAdresataWPamieci)) {
                     case 1:
-                        edytujDaneAdresata(nazwaPliku, adresaci, pozycjaAdresataWPamieci, "imie");
+                        edytujDaneAdresata(nazwaPlikuAdresaci, adresaci, pozycjaAdresataWPamieci, "imie");
                         break;
                     case 2:
-                        edytujDaneAdresata(nazwaPliku, adresaci, pozycjaAdresataWPamieci, "nazwisko");
+                        edytujDaneAdresata(nazwaPlikuAdresaci, adresaci, pozycjaAdresataWPamieci, "nazwisko");
                         break;
                     case 3:
-                        edytujDaneAdresata(nazwaPliku, adresaci, pozycjaAdresataWPamieci, "numer telefonu");
+                        edytujDaneAdresata(nazwaPlikuAdresaci, adresaci, pozycjaAdresataWPamieci, "numer telefonu");
                         break;
                     case 4:
-                        edytujDaneAdresata(nazwaPliku, adresaci, pozycjaAdresataWPamieci, "email");
+                        edytujDaneAdresata(nazwaPlikuAdresaci, adresaci, pozycjaAdresataWPamieci, "email");
                         break;
                     case 5:
-                        edytujDaneAdresata(nazwaPliku, adresaci, pozycjaAdresataWPamieci, "adres");
+                        edytujDaneAdresata(nazwaPlikuAdresaci, adresaci, pozycjaAdresataWPamieci, "adres");
                         break;
                     case 6:
                         menuEdycjiAdresataAktywne = false;
@@ -441,10 +572,11 @@ void wyswietlMenu(char* nazwaPliku, vector<Kontakt> &adresaci, vector<Uzytkownik
                 }
                 break;
             case 7:
-                zmianaHaslaUzytkownika(uzytkownicy, idZalogowanegoUzytkownika);
+                wczytajUzytkownikowZPliku(nazwaPlikuUzytkownicy, uzytkownicy);
+                zmianaHaslaUzytkownika(nazwaPlikuUzytkownicy, uzytkownicy, idUzytkownika);
                 break;
             case 8:
-                idZalogowanegoUzytkownika = 0;
+                idUzytkownika = 0;
                 menuGlowneAktywne = false;
                 menuLogowaniaAktywne = true;
                 break;
@@ -529,44 +661,26 @@ void wyswietlTytul() {
     wyczyscEkran();
     cout << "KSIĄŻKA ADRESOWA" << endl;
 }
-void rejestracjaUzytkownika(vector<Uzytkownik> &uzytkownicy) {
-    string nazwa, haslo;
-    int userCount = uzytkownicy.size();
-    Uzytkownik userToRegister;
+void rejestracjaUzytkownika(char* nazwaPlikuUzytkownicy) {
+    vector<Uzytkownik> uzytkownicy;
 
-    cout << "Podaj nazwe uzytkownika: ";
-    cin >> nazwa;
-
-    int i=0;
-    while (i<userCount) {
-        if (uzytkownicy[i].nazwa == nazwa) {
-            cout << "Taki uzytkownik istnieje. Wpisz inna nazwe uzytkownika: ";
-            cin >> nazwa;
-            i = 0;
-        } else {
-            i++;
-        }
-    }
-    cout << "Podaj haslo: ";
-    cin >> haslo;
-
-    userToRegister.nazwa = nazwa;
-    userToRegister.haslo = haslo;
-    userToRegister.id = userCount + 1;
-
-    uzytkownicy.push_back(userToRegister);
+    wczytajUzytkownikowZPliku(nazwaPlikuUzytkownicy, uzytkownicy);
+    dodajUzytkownika(nazwaPlikuUzytkownicy, uzytkownicy);
 
     cout << "Konto zalozone" << endl;
     Sleep(1000);
 }
-int logowanieUzytkownika(vector<Uzytkownik> &uzytkownicy) {
+int logowanieUzytkownika(char* nazwaPlikuUzytkownicy ) {
+    int liczbaUzytkownikow;
     string nazwa, haslo;
-    int userCount = uzytkownicy.size();
+    vector<Uzytkownik> uzytkownicy;
+    wczytajUzytkownikowZPliku(nazwaPlikuUzytkownicy, uzytkownicy);
+    liczbaUzytkownikow = uzytkownicy.size();
 
     cout << "Podaj nazwe: ";
     cin >> nazwa;
     int i = 0;
-    while (i<userCount) {
+    while (i<liczbaUzytkownikow) {
         if (uzytkownicy[i].nazwa == nazwa) {
             for (int proby=0; proby<3; proby++) {
                 cout << "Podaj haslo: Pozostało prob " << 3-proby << ": ";
@@ -588,18 +702,28 @@ int logowanieUzytkownika(vector<Uzytkownik> &uzytkownicy) {
     Sleep(1500);
     return 0;
 }
-void zmianaHaslaUzytkownika(vector<Uzytkownik> &uzytkownicy,int idZalogowanegoUzytkownika) {
+void zmianaHaslaUzytkownika(char* nazwaPlikuUzytkownicy, vector<Uzytkownik> &uzytkownicy,int idUzytkownika) {
+    fstream plik;
     string haslo;
-    int userCount = uzytkownicy.size();
-
+    int liczbaUzytkownikow = uzytkownicy.size();
     cout << "Podaj nowe haslo: ";  // mozna zapytac tez o stare
     cin >> haslo;
-    for (int i=0; i<userCount; i++) {
-        if (uzytkownicy[i].id == idZalogowanegoUzytkownika) {
+    for (int i=0; i<liczbaUzytkownikow; i++) {
+        if (uzytkownicy[i].id == idUzytkownika) {
             uzytkownicy[i].haslo = haslo;
-            cout << "Haslo zostalo zmienione" << endl;
-            Sleep(1500);
 
+            plik.open(nazwaPlikuUzytkownicy,ios::out);
+            if (plik.good()) {
+                for (int i=0 ; i<uzytkownicy.size(); i++) {
+                    plik << konwertujUzytkownikaNaTekst(uzytkownicy[i]) << endl;
+                }
+                cout << "Zmieniono haslo uzytkownika o id: " << idUzytkownika << endl;
+                plik.close();
+                system("pause");
+            } else {
+                cout << "Nie udalo sie zmienic hasla uzytkownika o id: " << idUzytkownika << endl;
+                system("pause");
+            }
         }
     }
 }
