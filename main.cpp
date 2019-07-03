@@ -434,9 +434,11 @@ void wczytajAdresatowZPliku(char* nazwaPlikuAdresaci, vector<Kontakt> &adresaci,
         while(!plik.eof()) {
             getline(plik,liniaZDanymiAdresata);
             if (liniaZDanymiAdresata.length() > 0)
+            {
                 daneAdresata = konwertujTekstNaKontakt(liniaZDanymiAdresata);
                 if (daneAdresata.idUzytkownika == idUzytkownika)
                     adresaci.push_back(daneAdresata);
+            }
         }
     }
 
