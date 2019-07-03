@@ -28,7 +28,7 @@ void wyswietlWszystkichAdresatow(vector<Kontakt> &adresaci);
 void wyszukajAdresataPoNazwisku(vector<Kontakt> &adresaci);
 void wyszukajAdresataPoImieniu(vector<Kontakt> &adresaci);
 void usunAdresata(char* nazwaPlikuAdresaci,vector<Kontakt> &adresaci);
-void aktualizujPlikZAdresatami(char* nazwaPlikuAdresaci, vector<Kontakt> &adresaci);
+void aktualizujPlikZAdresatami(char* nazwaPlikuAdresaci, Kontakt edytowanyAdresat);
 void usunAdresataOPozycji(vector<Kontakt> &adresaci, unsigned int pozycjaAdresataDoUsuniecia);
 void edytujDaneAdresata(char* nazwaPlikuAdresaci, vector<Kontakt> &adresaci, unsigned int pozycjaAdresataWPamieci, string pole);
 void wyswietlAdresata(Kontakt adresatDoWyswietlenia);
@@ -58,7 +58,6 @@ int main() {
     vector<Uzytkownik> uzytkownicy;
     vector<Kontakt> adresaci;
     wyswietlTytul();
-    //wczytajAdresatowZPliku(nazwaPlikuAdresaci, adresaci);
     wyswietlMenu(nazwaPlikuAdresaci, nazwaPlikuUzytkownicy, adresaci, uzytkownicy);
 
     return 0;
@@ -264,14 +263,35 @@ void wyszukajAdresataPoImieniu(vector<Kontakt> &adresaci) {
     }
     system("pause");
 }
-void aktualizujPlikZAdresatami(char* nazwaPlikuAdresaci, vector<Kontakt> &adresaci) {
-    fstream plik;
-    plik.open(nazwaPlikuAdresaci,ios::out);
+void aktualizujPlikZAdresatami(char* nazwaPlikuAdresaci, Kontakt edytowanyAdresat) {
+    fstream plik, plik_tymczasowy;
+    string liniaZDanymiAdresata;
+    Kontakt daneAdresata;
+    char* nazwaPlikuTymczasowego = "Adresaci_tymczasowy.txt";
+
+    plik.open(nazwaPlikuAdresaci,ios::in);
     if (plik.good()) {
-        for (int i=0; i<adresaci.size(); i++) {
-            plik << konwertujKontaktNaTekst(adresaci[i]) << endl;
+        plik_tymczasowy.open(nazwaPlikuTymczasowego,ios::out);
+        if (plik_tymczasowy.good()) {
+            cin.sync();
+            while(!plik.eof()) {
+                getline(plik,liniaZDanymiAdresata);
+                if (liniaZDanymiAdresata.size() > 1) {
+                        daneAdresata = konwertujTekstNaKontakt(liniaZDanymiAdresata);
+
+                        if (daneAdresata.id == edytowanyAdresat.id) {
+                            plik_tymczasowy << konwertujKontaktNaTekst(edytowanyAdresat) << endl;
+                            continue;
+                        }
+                    plik_tymczasowy << liniaZDanymiAdresata << endl;
+                }
+            }
+            plik_tymczasowy.close();
+            plik.close();
+            remove(nazwaPlikuAdresaci);
+            rename(nazwaPlikuTymczasowego, nazwaPlikuAdresaci);
+
         }
-        plik.close();
     } else {
         cout << "Nie udało się zauktualizować pliku" << endl;
         system("pause");
@@ -299,7 +319,7 @@ void usunAdresata(char* nazwaPlikuAdresaci,vector<Kontakt> &adresaci) {
             cin >> wybor;
             if (wybor == 't') {
                 usunAdresataOPozycji(adresaci, pozycjaAdresataDoUsuniecia);
-                aktualizujPlikZAdresatami(nazwaPlikuAdresaci, adresaci);
+                //aktualizujPlikZAdresatami(nazwaPlikuAdresaci, adresaci);
                 cout << "Adresat usunięty !!!" << endl;
                 Sleep(1000);
             }
@@ -433,8 +453,7 @@ void wczytajAdresatowZPliku(char* nazwaPlikuAdresaci, vector<Kontakt> &adresaci,
         cin.sync();
         while(!plik.eof()) {
             getline(plik,liniaZDanymiAdresata);
-            if (liniaZDanymiAdresata.length() > 0)
-            {
+            if (liniaZDanymiAdresata.length() > 0) {
                 daneAdresata = konwertujTekstNaKontakt(liniaZDanymiAdresata);
                 if (daneAdresata.idUzytkownika == idUzytkownika)
                     adresaci.push_back(daneAdresata);
@@ -464,28 +483,29 @@ int wczytajUzytkownikowZPliku(char* nazwaPlikuUzytkownicy, vector<Uzytkownik> &u
 
 }
 void edytujDaneAdresata(char* nazwaPlikuAdresaci, vector<Kontakt> &adresaci, unsigned int pozycjaAdresataWPamieci, string pole) {
+    Kontakt edytowanyAdresat = adresaci[pozycjaAdresataWPamieci];
     wyswietlTytul();
-    cout << "Podaj ID:  " << adresaci[pozycjaAdresataWPamieci].id << endl;
+    cout << "Podaj ID:  " << edytowanyAdresat.id << endl;
     cout << endl;
     cout << "Adresat do edycji: " << endl;
-    wyswietlAdresata(adresaci[pozycjaAdresataWPamieci]);
+    wyswietlAdresata(edytowanyAdresat);
     if (pole == "imie") {
         cout << "Podaj nowe imię: ";
-        cin >> adresaci[pozycjaAdresataWPamieci].imie;
+        cin >> edytowanyAdresat.imie;
     } else if (pole == "nazwisko") {
         cout << "Podaj nowe nazwisko: ";
-        cin >> adresaci[pozycjaAdresataWPamieci].nazwisko;
+        cin >> edytowanyAdresat.nazwisko;
     } else if (pole == "numer telefonu") {
         cout << "Podaj nowy numer telefonu: ";
-        cin >> adresaci[pozycjaAdresataWPamieci].nrTelefonu;
+        cin >> edytowanyAdresat.nrTelefonu;
     } else if (pole == "email") {
         cout << "Podaj nowy email: ";
-        cin >> adresaci[pozycjaAdresataWPamieci].email;
+        cin >> edytowanyAdresat.email;
     } else if (pole == "adres") {
         cout << "Podaj nowy adres: ";
-        cin >> adresaci[pozycjaAdresataWPamieci].adres;
+        cin >> edytowanyAdresat.adres;
     }
-    aktualizujPlikZAdresatami(nazwaPlikuAdresaci, adresaci);
+    aktualizujPlikZAdresatami(nazwaPlikuAdresaci, edytowanyAdresat);
     cout << "Dane zmienione! " << endl;
     Sleep(1000);
 }
@@ -572,6 +592,7 @@ void wyswietlMenu(char* nazwaPlikuAdresaci, char* nazwaPlikuUzytkownicy, vector<
                         cout << " Brak takiej opcji !!! ";
                         Sleep(1000);
                     }
+                    wczytajAdresatowZPliku(nazwaPlikuAdresaci, adresaci, idUzytkownika);
                     menuEdycjiAdresataAktywne = false;
                 }
                 break;
@@ -743,7 +764,7 @@ int podajOstatnieIdAdresata(char* nazwaPlikuAdresaci) {
             if (liniaZDanymiAdresata.length() > 0)
                 daneAdresata = konwertujTekstNaKontakt(liniaZDanymiAdresata);
         }
-            return daneAdresata.id;
+        return daneAdresata.id;
     }
 
     plik.close();
