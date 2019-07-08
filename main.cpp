@@ -7,6 +7,20 @@
 
 using namespace std;
 
+class UzytkownicyPlik {
+
+};
+
+class AdresaciPlik {
+
+
+};
+
+class Menu {
+
+
+};
+
 struct Uzytkownik {
     int id;
     string nazwa, haslo;
@@ -17,40 +31,40 @@ struct Kontakt {
     unsigned int idUzytkownika = 0;
 };
 
-void rejestracjaUzytkownika(char* nazwaPlikuUzytkownicy);
-void zmianaHaslaUzytkownika(char* nazwaPlikuUzytkownicy, vector<Uzytkownik> &uzytkownicy,int idUzytkownika);
-void wczytajAdresatowZPliku(char* nazwaPlikuAdresaci, vector<Kontakt> &adresaci, int idUzytkownika);
-void dodajAdresata(char* nazwaPlikuAdresaci, vector<Kontakt> &adresaci, int idUzytkownika);
-void dodajUzytkownika(char* nazwaPlikuUzytkownicy, vector<Uzytkownik> &uzytkownicy);
-void dodajAdresataDoPliku(char* nazwaPlikuAdresaci,Kontakt dodawanyKontakt);
-void dodajUzytkownikaDoPliku(char* nazwaPlikuUzytkownicy, Uzytkownik dodawanyUzytkownik);
-void wyswietlWszystkichAdresatow(vector<Kontakt> &adresaci);
-void wyszukajAdresataPoNazwisku(vector<Kontakt> &adresaci);
-void wyszukajAdresataPoImieniu(vector<Kontakt> &adresaci);
-void usunAdresata(char* nazwaPlikuAdresaci,vector<Kontakt> &adresaci);
-void aktualizujPlikZAdresatami(char* nazwaPlikuAdresaci, Kontakt edytowanyAdresat);
-void usunAdresataOPozycji(char* nazwaPlikuAdresaci, int idAdresataDoUsuniecia);
-void edytujDaneAdresata(char* nazwaPlikuAdresaci, vector<Kontakt> &adresaci, unsigned int pozycjaAdresataWPamieci, string pole);
-void wyswietlAdresata(Kontakt adresatDoWyswietlenia);
-void wyswietlTytul();
-void wyczyscEkran();
-void wyswietlMenu(char* nazwaPlikuAdresaci, char* nazwaPlikuUzytkownicy, vector<Kontakt> &adresaci, vector<Uzytkownik> &uzytkownicy);
+void rejestracjaUzytkownika(char* nazwaPlikuUzytkownicy); //UzytkownicyPlik
+void zmianaHaslaUzytkownika(char* nazwaPlikuUzytkownicy, vector<Uzytkownik> &uzytkownicy,int idUzytkownika); //UzytkownicyPlik
+void wczytajAdresatowZPliku(char* nazwaPlikuAdresaci, vector<Kontakt> &adresaci, int idUzytkownika); //AdresaciPlik
+void dodajAdresata(char* nazwaPlikuAdresaci, vector<Kontakt> &adresaci, int idUzytkownika); //AdresaciPlik
+void dodajUzytkownika(char* nazwaPlikuUzytkownicy, vector<Uzytkownik> &uzytkownicy); //UzytkownicyPlik
+void dodajAdresataDoPliku(char* nazwaPlikuAdresaci,Kontakt dodawanyKontakt); //AdresaciPlik
+void dodajUzytkownikaDoPliku(char* nazwaPlikuUzytkownicy, Uzytkownik dodawanyUzytkownik); //UzytkownicyPlik
+void wyswietlWszystkichAdresatow(vector<Kontakt> &adresaci); //AdresaciPlik
+void wyszukajAdresataPoNazwisku(vector<Kontakt> &adresaci); //AdresaciPlik
+void wyszukajAdresataPoImieniu(vector<Kontakt> &adresaci); //AdresaciPlik
+void usunAdresata(char* nazwaPlikuAdresaci,vector<Kontakt> &adresaci); //AdresaciPlik
+void aktualizujPlikZAdresatami(char* nazwaPlikuAdresaci, Kontakt edytowanyAdresat); //AdresaciPlik
+void usunAdresataOPozycji(char* nazwaPlikuAdresaci, int idAdresataDoUsuniecia); //AdresaciPlik
+void edytujDaneAdresata(char* nazwaPlikuAdresaci, vector<Kontakt> &adresaci, unsigned int pozycjaAdresataWPamieci, string pole); //AdresaciPlik
+void wyswietlAdresata(Kontakt adresatDoWyswietlenia); //MENU
+void wyswietlTytul(); //MENU
+void wyczyscEkran(); //MENU
+void wyswietlMenu(char* nazwaPlikuAdresaci, char* nazwaPlikuUzytkownicy, vector<Kontakt> &adresaci, vector<Uzytkownik> &uzytkownicy); //MENU
 
-int wczytajUzytkownikowZPliku(char* nazwaPlikuUzytkownicy, vector<Uzytkownik> &uzytkownicy);
-int logowanieUzytkownika(char* nazwaPlikuUzytkownicy);
-int wyszukajAdresataPoID(vector<Kontakt> &adresaci, unsigned int szukaneId);
+int wczytajUzytkownikowZPliku(char* nazwaPlikuUzytkownicy, vector<Uzytkownik> &uzytkownicy); //UzytkownicyPlik
+int logowanieUzytkownika(char* nazwaPlikuUzytkownicy); //UzytkownicyPlik
+int wyszukajAdresataPoID(vector<Kontakt> &adresaci, unsigned int szukaneId); //AdresaciPlik
 int konwertujTekstNaLiczbe(string liczba);
-int menuGlowne();
-int menuLogowania();
-int menuEdycjiAdresata(vector<Kontakt> &adresaci, int pozycjaAdresataWPamieci);
-int podajOstatnieIdAdresata(char* nazwaPlikuAdresaci);
+int menuGlowne(); //MENU
+int menuLogowania(); //MENU
+int menuEdycjiAdresata(vector<Kontakt> &adresaci, int pozycjaAdresataWPamieci); //MENU
+int podajOstatnieIdAdresata(char* nazwaPlikuAdresaci); //AdresaciPlik
 
 string konwertujLiczbeNaTekst(int liczba);
-string konwertujKontaktNaTekst(Kontakt kontaktDoKonwersji);
-string konwertujUzytkownikaNaTekst(Uzytkownik uzytkownikDoKonwersji);
+string konwertujKontaktNaTekst(Kontakt kontaktDoKonwersji); //AdresaciPlik
+string konwertujUzytkownikaNaTekst(Uzytkownik uzytkownikDoKonwersji); //UzytkownicyPlik
 
-Kontakt konwertujTekstNaKontakt(string liniaZDanymiAdresata);
-Uzytkownik konwertujTekstNaUzytkownik(string liniaZDanymiUzytkownika);
+Kontakt konwertujTekstNaKontakt(string liniaZDanymiAdresata); //AdresaciPlik
+Uzytkownik konwertujTekstNaUzytkownik(string liniaZDanymiUzytkownika); //UzytkownicyPlik
 
 int main() {
     char* nazwaPlikuAdresaci = "Adresaci.txt";
