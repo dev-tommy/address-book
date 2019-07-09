@@ -23,7 +23,6 @@ public:
     int id;
     string nazwa, haslo;
 };
-
 string Uzytkownik::konwertujUzytkownikaNaTekst() {
     string uzytkownikWFormieTekstu;
     vector<string> polaDanychUzytkownika;
@@ -37,10 +36,7 @@ string Uzytkownik::konwertujUzytkownikaNaTekst() {
     }
     return uzytkownikWFormieTekstu;
 }
-
-
 void Uzytkownik::konwertujTekstNaUzytkownik(string liniaZDanymiUzytkownika) {
-    //Uzytkownik uzytkownikTymczasowy;
     int numerPola = 0;
     char znak;
     this->id=0;
@@ -68,53 +64,8 @@ void Uzytkownik::konwertujTekstNaUzytkownik(string liniaZDanymiUzytkownika) {
         }
         liniaZDanymiUzytkownika.erase(0,1);
     }
-
-   // return &this;
 }
 
-
-//class Adresat {};
-
-class UzytkownicyPlik {
-public:
-    UzytkownicyPlik();
-    void rejestracjaUzytkownika();
-    void zmianaHaslaUzytkownika();
-    void dodajUzytkownika();
-    void dodajUzytkownikaDoPliku();
-    int wczytajUzytkownikowZPliku();
-    int logowanieUzytkownika();
-
-    Uzytkownik konwertujTekstNaUzytkownik();
-
-    vector<Uzytkownik> uzytkownicy;
-
-private:
-    string nazwaPliku;
-    int idUzytkownika;
-
-
-};
-UzytkownicyPlik::UzytkownicyPlik():nazwaPliku("Uzytkownicy.txt") {
-    vector<Uzytkownik> uzytkownicy;
-}
-
-
-
-/*
-class AdresaciPlik {
-
-
-};
-
-class Menu {
-
-
-};
-
-*/
-
-void rejestracjaUzytkownika(char* nazwaPlikuUzytkownicy); //UzytkownicyPlik
 void zmianaHaslaUzytkownika(char* nazwaPlikuUzytkownicy, vector<Uzytkownik> &uzytkownicy,int idUzytkownika); //UzytkownicyPlik
 void wczytajAdresatowZPliku(char* nazwaPlikuAdresaci, vector<Kontakt> &adresaci, int idUzytkownika); //AdresaciPlik
 void dodajAdresata(char* nazwaPlikuAdresaci, vector<Kontakt> &adresaci, int idUzytkownika); //AdresaciPlik
@@ -134,7 +85,6 @@ void wyczyscEkran(); //MENU
 void wyswietlMenu(char* nazwaPlikuAdresaci, char* nazwaPlikuUzytkownicy, vector<Kontakt> &adresaci, vector<Uzytkownik> &uzytkownicy); //MENU
 
 int wczytajUzytkownikowZPliku(char* nazwaPlikuUzytkownicy, vector<Uzytkownik> &uzytkownicy); //UzytkownicyPlik
-int logowanieUzytkownika(char* nazwaPlikuUzytkownicy); //UzytkownicyPlik
 int wyszukajAdresataPoID(vector<Kontakt> &adresaci, unsigned int szukaneId); //AdresaciPlik
 int konwertujTekstNaLiczbe(string liczba);
 int menuGlowne(); //MENU
@@ -142,18 +92,74 @@ int menuLogowania(); //MENU
 int menuEdycjiAdresata(vector<Kontakt> &adresaci, int pozycjaAdresataWPamieci); //MENU
 int podajOstatnieIdAdresata(char* nazwaPlikuAdresaci); //AdresaciPlik
 
-
 string konwertujKontaktNaTekst(Kontakt kontaktDoKonwersji); //AdresaciPlik
-
 Kontakt konwertujTekstNaKontakt(string liniaZDanymiAdresata); //AdresaciPlik
 
+char* nazwaPlikuAdresaci = "Adresaci.txt";
+char* nazwaPlikuUzytkownicy = "Uzytkownicy.txt";
+vector<Uzytkownik> uzytkownicy;
+vector<Kontakt> adresaci;
+
+class UzytkownicyPlik {
+public:
+    void rejestracjaUzytkownika();
+    int logowanieUzytkownika();
+
+    vector<Uzytkownik> uzytkownicy;
+    int idUzytkownika;
+private:
+    string nazwaPliku;
+
+
+
+};
+void UzytkownicyPlik::rejestracjaUzytkownika() {
+
+    wczytajUzytkownikowZPliku(nazwaPlikuUzytkownicy, uzytkownicy);
+    dodajUzytkownika(nazwaPlikuUzytkownicy, uzytkownicy);
+
+    cout << "Konto zalozone" << endl;
+    Sleep(1000);
+}
+int UzytkownicyPlik::logowanieUzytkownika() {
+    int liczbaUzytkownikow;
+    string nazwa, haslo;
+    vector<Uzytkownik> uzytkownicy;
+    wczytajUzytkownikowZPliku(nazwaPlikuUzytkownicy, uzytkownicy);
+    liczbaUzytkownikow = uzytkownicy.size();
+
+    cout << "Podaj nazwe: ";
+    cin >> nazwa;
+    int i = 0;
+    while (i<liczbaUzytkownikow) {
+        if (uzytkownicy[i].nazwa == nazwa) {
+            for (int proby=0; proby<3; proby++) {
+                cout << "Podaj haslo: Pozostało prob " << 3-proby << ": ";
+                cin >> haslo;
+                if (uzytkownicy[i].haslo == haslo) {
+                    cout << "Zalogowales sie." << endl;
+                    Sleep(1000);
+                    return uzytkownicy[i].id;
+                }
+            }
+            cout << "Podales 3 razy bledne haslo. Poczekaj 3 sekundy" << endl;
+            Sleep(3000);
+            return 0;
+        }
+        i++;
+
+    }
+    cout << "Nie ma uzytkownika z takim loginem" << endl;
+    Sleep(1500);
+    return 0;
+
+
+}
+
+
+UzytkownicyPlik Users;
 
 int main() {
-    char* nazwaPlikuAdresaci = "Adresaci.txt";
-    char* nazwaPlikuUzytkownicy = "Uzytkownicy.txt";
-    vector<Uzytkownik> uzytkownicy;
-    vector<Kontakt> adresaci;
-    UzytkownicyPlik Users;
     wyswietlTytul();
     wyswietlMenu(nazwaPlikuAdresaci, nazwaPlikuUzytkownicy, adresaci, uzytkownicy);
 
@@ -473,7 +479,6 @@ string konwertujKontaktNaTekst(Kontakt kontaktDoKonwersji) {
     }
     return kontaktWFormieTekstu;
 }
-
 Kontakt konwertujTekstNaKontakt(string liniaZDanymiAdresata) {
     Kontakt kontaktTymczasowy;
     int numerPola = 0;
@@ -521,7 +526,6 @@ Kontakt konwertujTekstNaKontakt(string liniaZDanymiAdresata) {
 
     return kontaktTymczasowy;
 }
-
 void wczytajAdresatowZPliku(char* nazwaPlikuAdresaci, vector<Kontakt> &adresaci, int idUzytkownika) {
     string liniaZDanymiAdresata;
     fstream plik;
@@ -551,7 +555,7 @@ int wczytajUzytkownikowZPliku(char* nazwaPlikuUzytkownicy, vector<Uzytkownik> &u
         cin.sync();
         while(!plik.eof()) {
             getline(plik,liniaZDanymiUzytkownika);
-            if (liniaZDanymiUzytkownika.length() > 0){
+            if (liniaZDanymiUzytkownika.length() > 0) {
                 Uzytkownik *tymczasowy = new Uzytkownik;
                 tymczasowy->konwertujTekstNaUzytkownik(liniaZDanymiUzytkownika);
                 uzytkownicy.push_back(*tymczasowy);
@@ -606,11 +610,11 @@ void wyswietlMenu(char* nazwaPlikuAdresaci, char* nazwaPlikuUzytkownicy, vector<
             if (idUzytkownika == 0) {
                 switch(menuLogowania()) {
                 case 1:
-                    idUzytkownika = logowanieUzytkownika(nazwaPlikuUzytkownicy);
+                    idUzytkownika = Users.logowanieUzytkownika();
                     wczytajAdresatowZPliku(nazwaPlikuAdresaci, adresaci, idUzytkownika);
                     break;
                 case 2:
-                    rejestracjaUzytkownika(nazwaPlikuUzytkownicy);
+                    Users.rejestracjaUzytkownika();
                     break;
                 case 9:
                     menuLogowaniaAktywne = false;
@@ -768,47 +772,6 @@ int menuEdycjiAdresata(vector<Kontakt> &adresaci, int pozycjaAdresataWPamieci) {
 void wyswietlTytul() {
     wyczyscEkran();
     cout << "KSIĄŻKA ADRESOWA" << endl;
-}
-void rejestracjaUzytkownika(char* nazwaPlikuUzytkownicy) {
-    vector<Uzytkownik> uzytkownicy;
-
-    wczytajUzytkownikowZPliku(nazwaPlikuUzytkownicy, uzytkownicy);
-    dodajUzytkownika(nazwaPlikuUzytkownicy, uzytkownicy);
-
-    cout << "Konto zalozone" << endl;
-    Sleep(1000);
-}
-int logowanieUzytkownika(char* nazwaPlikuUzytkownicy ) {
-    int liczbaUzytkownikow;
-    string nazwa, haslo;
-    vector<Uzytkownik> uzytkownicy;
-    wczytajUzytkownikowZPliku(nazwaPlikuUzytkownicy, uzytkownicy);
-    liczbaUzytkownikow = uzytkownicy.size();
-
-    cout << "Podaj nazwe: ";
-    cin >> nazwa;
-    int i = 0;
-    while (i<liczbaUzytkownikow) {
-        if (uzytkownicy[i].nazwa == nazwa) {
-            for (int proby=0; proby<3; proby++) {
-                cout << "Podaj haslo: Pozostało prob " << 3-proby << ": ";
-                cin >> haslo;
-                if (uzytkownicy[i].haslo == haslo) {
-                    cout << "Zalogowales sie." << endl;
-                    Sleep(1000);
-                    return uzytkownicy[i].id;
-                }
-            }
-            cout << "Podales 3 razy bledne haslo. Poczekaj 3 sekundy" << endl;
-            Sleep(3000);
-            return 0;
-        }
-        i++;
-
-    }
-    cout << "Nie ma uzytkownika z takim loginem" << endl;
-    Sleep(1500);
-    return 0;
 }
 void zmianaHaslaUzytkownika(char* nazwaPlikuUzytkownicy, vector<Uzytkownik> &uzytkownicy,int idUzytkownika) {
     fstream plik;
