@@ -9,13 +9,6 @@ using namespace std;
 
 string konwertujLiczbeNaTekst(int liczba);
 
-/*
-struct Uzytkownik {
-    int id;
-    string nazwa, haslo;
-};
-
-*/
 struct Kontakt {
     string imie="", nazwisko="", adres="", email="", nrTelefonu="";
     unsigned int id = 0;
@@ -25,7 +18,7 @@ struct Kontakt {
 class Uzytkownik {
 public:
     string konwertujUzytkownikaNaTekst();
-    Uzytkownik konwertujTekstNaUzytkownik();
+    void konwertujTekstNaUzytkownik(string liniaZDanymiUzytkownika);
 
     int id;
     string nazwa, haslo;
@@ -46,8 +39,37 @@ string Uzytkownik::konwertujUzytkownikaNaTekst() {
 }
 
 
-Uzytkownik Uzytkownik::konwertujTekstNaUzytkownik() {
+void Uzytkownik::konwertujTekstNaUzytkownik(string liniaZDanymiUzytkownika) {
+    //Uzytkownik uzytkownikTymczasowy;
+    int numerPola = 0;
+    char znak;
+    this->id=0;
+    // IdUzytkownika | nazwa | haslo
+    while(liniaZDanymiUzytkownika.length()) {
+        znak = liniaZDanymiUzytkownika[0];
+        if (znak == '|') {
+            numerPola++;
+            liniaZDanymiUzytkownika.erase(0,1);
+            continue;
+        }
+        switch(numerPola) {
+        case 0:
+            if ((znak >= '0') && (znak <='9')) {
+                this->id *= 10;
+                this->id += (znak - '0');
+            }
+            break;
+        case 1:
+            this->nazwa+=znak;
+            break;
+        case 2:
+            this->haslo+=znak;
+            break;
+        }
+        liniaZDanymiUzytkownika.erase(0,1);
+    }
 
+   // return &this;
 }
 
 
@@ -122,10 +144,9 @@ int podajOstatnieIdAdresata(char* nazwaPlikuAdresaci); //AdresaciPlik
 
 
 string konwertujKontaktNaTekst(Kontakt kontaktDoKonwersji); //AdresaciPlik
-string konwertujUzytkownikaNaTekst(Uzytkownik uzytkownikDoKonwersji); //UzytkownicyPlik
 
 Kontakt konwertujTekstNaKontakt(string liniaZDanymiAdresata); //AdresaciPlik
-Uzytkownik konwertujTekstNaUzytkownik(string liniaZDanymiUzytkownika); //UzytkownicyPlik
+
 
 int main() {
     char* nazwaPlikuAdresaci = "Adresaci.txt";
@@ -452,19 +473,7 @@ string konwertujKontaktNaTekst(Kontakt kontaktDoKonwersji) {
     }
     return kontaktWFormieTekstu;
 }
-/* string konwertujUzytkownikaNaTekst(Uzytkownik uzytkownikDoKonwersji) {
-    string uzytkownikWFormieTekstu;
-    vector<string> polaDanychUzytkownika;
 
-    polaDanychUzytkownika.push_back(uzytkownikDoKonwersji.nazwa);
-    polaDanychUzytkownika.push_back(uzytkownikDoKonwersji.haslo);
-
-    uzytkownikWFormieTekstu = konwertujLiczbeNaTekst(uzytkownikDoKonwersji.id) + "|";
-    for(int i = 0; i < polaDanychUzytkownika.size(); i++) {
-        uzytkownikWFormieTekstu+=polaDanychUzytkownika[i]+"|";
-    }
-    return uzytkownikWFormieTekstu;
-} */
 Kontakt konwertujTekstNaKontakt(string liniaZDanymiAdresata) {
     Kontakt kontaktTymczasowy;
     int numerPola = 0;
@@ -512,38 +521,7 @@ Kontakt konwertujTekstNaKontakt(string liniaZDanymiAdresata) {
 
     return kontaktTymczasowy;
 }
-Uzytkownik konwertujTekstNaUzytkownik(string liniaZDanymiUzytkownika) {
-    Uzytkownik uzytkownikTymczasowy;
-    int numerPola = 0;
-    char znak;
-    uzytkownikTymczasowy.id=0;
-    // IdUzytkownika | nazwa | haslo
-    while(liniaZDanymiUzytkownika.length()) {
-        znak = liniaZDanymiUzytkownika[0];
-        if (znak == '|') {
-            numerPola++;
-            liniaZDanymiUzytkownika.erase(0,1);
-            continue;
-        }
-        switch(numerPola) {
-        case 0:
-            if ((znak >= '0') && (znak <='9')) {
-                uzytkownikTymczasowy.id *= 10;
-                uzytkownikTymczasowy.id += (znak - '0');
-            }
-            break;
-        case 1:
-            uzytkownikTymczasowy.nazwa+=znak;
-            break;
-        case 2:
-            uzytkownikTymczasowy.haslo+=znak;
-            break;
-        }
-        liniaZDanymiUzytkownika.erase(0,1);
-    }
 
-    return uzytkownikTymczasowy;
-}
 void wczytajAdresatowZPliku(char* nazwaPlikuAdresaci, vector<Kontakt> &adresaci, int idUzytkownika) {
     string liniaZDanymiAdresata;
     fstream plik;
@@ -567,15 +545,18 @@ void wczytajAdresatowZPliku(char* nazwaPlikuAdresaci, vector<Kontakt> &adresaci,
 int wczytajUzytkownikowZPliku(char* nazwaPlikuUzytkownicy, vector<Uzytkownik> &uzytkownicy) {
     string liniaZDanymiUzytkownika;
     fstream plik;
-
     uzytkownicy.clear();
     plik.open(nazwaPlikuUzytkownicy,ios::in);
     if (plik.good()) {
         cin.sync();
         while(!plik.eof()) {
             getline(plik,liniaZDanymiUzytkownika);
-            if (liniaZDanymiUzytkownika.length() > 0)
-                uzytkownicy.push_back(konwertujTekstNaUzytkownik(liniaZDanymiUzytkownika));
+            if (liniaZDanymiUzytkownika.length() > 0){
+                Uzytkownik *tymczasowy = new Uzytkownik;
+                tymczasowy->konwertujTekstNaUzytkownik(liniaZDanymiUzytkownika);
+                uzytkownicy.push_back(*tymczasowy);
+                delete tymczasowy;
+            }
         }
 
     }
