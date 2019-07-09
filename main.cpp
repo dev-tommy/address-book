@@ -7,10 +7,79 @@
 
 using namespace std;
 
-class UzytkownicyPlik {
+string konwertujLiczbeNaTekst(int liczba);
 
+/*
+struct Uzytkownik {
+    int id;
+    string nazwa, haslo;
 };
 
+*/
+struct Kontakt {
+    string imie="", nazwisko="", adres="", email="", nrTelefonu="";
+    unsigned int id = 0;
+    unsigned int idUzytkownika = 0;
+};
+
+class Uzytkownik {
+public:
+    string konwertujUzytkownikaNaTekst();
+    Uzytkownik konwertujTekstNaUzytkownik();
+
+    int id;
+    string nazwa, haslo;
+};
+
+string Uzytkownik::konwertujUzytkownikaNaTekst() {
+    string uzytkownikWFormieTekstu;
+    vector<string> polaDanychUzytkownika;
+
+    polaDanychUzytkownika.push_back(this->nazwa);
+    polaDanychUzytkownika.push_back(this->haslo);
+
+    uzytkownikWFormieTekstu = konwertujLiczbeNaTekst(this->id) + "|";
+    for(int i = 0; i < polaDanychUzytkownika.size(); i++) {
+        uzytkownikWFormieTekstu+=polaDanychUzytkownika[i]+"|";
+    }
+    return uzytkownikWFormieTekstu;
+}
+
+
+Uzytkownik Uzytkownik::konwertujTekstNaUzytkownik() {
+
+}
+
+
+//class Adresat {};
+
+class UzytkownicyPlik {
+public:
+    UzytkownicyPlik();
+    void rejestracjaUzytkownika();
+    void zmianaHaslaUzytkownika();
+    void dodajUzytkownika();
+    void dodajUzytkownikaDoPliku();
+    int wczytajUzytkownikowZPliku();
+    int logowanieUzytkownika();
+
+    Uzytkownik konwertujTekstNaUzytkownik();
+
+    vector<Uzytkownik> uzytkownicy;
+
+private:
+    string nazwaPliku;
+    int idUzytkownika;
+
+
+};
+UzytkownicyPlik::UzytkownicyPlik():nazwaPliku("Uzytkownicy.txt") {
+    vector<Uzytkownik> uzytkownicy;
+}
+
+
+
+/*
 class AdresaciPlik {
 
 
@@ -21,15 +90,7 @@ class Menu {
 
 };
 
-struct Uzytkownik {
-    int id;
-    string nazwa, haslo;
-};
-struct Kontakt {
-    string imie="", nazwisko="", adres="", email="", nrTelefonu="";
-    unsigned int id = 0;
-    unsigned int idUzytkownika = 0;
-};
+*/
 
 void rejestracjaUzytkownika(char* nazwaPlikuUzytkownicy); //UzytkownicyPlik
 void zmianaHaslaUzytkownika(char* nazwaPlikuUzytkownicy, vector<Uzytkownik> &uzytkownicy,int idUzytkownika); //UzytkownicyPlik
@@ -59,7 +120,7 @@ int menuLogowania(); //MENU
 int menuEdycjiAdresata(vector<Kontakt> &adresaci, int pozycjaAdresataWPamieci); //MENU
 int podajOstatnieIdAdresata(char* nazwaPlikuAdresaci); //AdresaciPlik
 
-string konwertujLiczbeNaTekst(int liczba);
+
 string konwertujKontaktNaTekst(Kontakt kontaktDoKonwersji); //AdresaciPlik
 string konwertujUzytkownikaNaTekst(Uzytkownik uzytkownikDoKonwersji); //UzytkownicyPlik
 
@@ -71,6 +132,7 @@ int main() {
     char* nazwaPlikuUzytkownicy = "Uzytkownicy.txt";
     vector<Uzytkownik> uzytkownicy;
     vector<Kontakt> adresaci;
+    UzytkownicyPlik Users;
     wyswietlTytul();
     wyswietlMenu(nazwaPlikuAdresaci, nazwaPlikuUzytkownicy, adresaci, uzytkownicy);
 
@@ -95,7 +157,7 @@ void dodajUzytkownikaDoPliku(char* nazwaPlikuUzytkownicy, Uzytkownik dodawanyUzy
     fstream plik;
     plik.open(nazwaPlikuUzytkownicy,ios::out | ios::app);
     if (plik.good()) {
-        plik << konwertujUzytkownikaNaTekst(dodawanyUzytkownik) << endl;
+        plik << dodawanyUzytkownik.konwertujUzytkownikaNaTekst() << endl;
 
         cout << "Dodano uzytkownika o id: " << dodawanyUzytkownik.id << endl;
         plik.close();
@@ -390,7 +452,7 @@ string konwertujKontaktNaTekst(Kontakt kontaktDoKonwersji) {
     }
     return kontaktWFormieTekstu;
 }
-string konwertujUzytkownikaNaTekst(Uzytkownik uzytkownikDoKonwersji) {
+/* string konwertujUzytkownikaNaTekst(Uzytkownik uzytkownikDoKonwersji) {
     string uzytkownikWFormieTekstu;
     vector<string> polaDanychUzytkownika;
 
@@ -402,7 +464,7 @@ string konwertujUzytkownikaNaTekst(Uzytkownik uzytkownikDoKonwersji) {
         uzytkownikWFormieTekstu+=polaDanychUzytkownika[i]+"|";
     }
     return uzytkownikWFormieTekstu;
-}
+} */
 Kontakt konwertujTekstNaKontakt(string liniaZDanymiAdresata) {
     Kontakt kontaktTymczasowy;
     int numerPola = 0;
@@ -780,7 +842,7 @@ void zmianaHaslaUzytkownika(char* nazwaPlikuUzytkownicy, vector<Uzytkownik> &uzy
             plik.open(nazwaPlikuUzytkownicy,ios::out);
             if (plik.good()) {
                 for (int i=0 ; i<uzytkownicy.size(); i++) {
-                    plik << konwertujUzytkownikaNaTekst(uzytkownicy[i]) << endl;
+                    plik << uzytkownicy[i].konwertujUzytkownikaNaTekst() << endl;
                 }
                 cout << "Zmieniono haslo uzytkownika o id: " << idUzytkownika << endl;
                 plik.close();
